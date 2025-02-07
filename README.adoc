@@ -1,0 +1,28 @@
+= obazl_cppo
+Bazel module for the CPPO preprocessor.
+
+See: link:https://github.com/ocaml-community/cppo[Cppo]
+
+
+Usage:
+
+[source="starlark",title="MODULE.bazel"]
+----
+bazel_dep(name = "obazl_cppo", version = "0.1.0")
+bazel_dep(name = "tools_opam",   version = "1.0.0")
+opam = use_extension("@tools_opam//extensions:opam.bzl", "opam")
+use_repo(opam, "opam.cppo")
+----
+
+
+[source="starlark", title="BUILD.bazel"]
+----
+
+load("@obazl_cppo//build/rules:cppo.bzl", "cppo")
+...
+cppo(
+    name  = "debug",
+    src   = "debug.ml",
+    out   = "debug.out",
+)
+----
