@@ -18,7 +18,7 @@ opam.deps(
     # toolchain = "local",
     ocaml_version = "5.1.1",
     opam_version = "2.3.0",
-    deps = {
+    pkgs = {
         "cppo": "1.8.0",
     },
 )
