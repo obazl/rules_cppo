@@ -1,31 +1,63 @@
-def cppo(name, src, out,
-         defines = []):
-    """Runs 'cppo'.
+def _cppo_impl(name, visibility,
+               srcs,
+               defines,
+               vars,
+               **kwargs):
+    """Runs 'cppo'. """
+    deflist = []
 
-    Args:
-        name: Name of the rule instance.
-        src:  Name of source file (string).
-        out:  Name of output file (string).
-        defines: List of -D defines
-    """
-    if not type(src) == "string":
-        fail("'src' arg must be a file name")
-    if not type(out) == "string":
-        fail("'out' arg must be a file name")
+    for d in defines:
+        deflist.append("-D " + d)
 
-    if len(defines) > 0:
-        defines = "-D 'foo'"
-    else:
-        defines = ""
+    vlist = []
+    for k,v in vars.items():
+        if v == "VERSION":
+            param = "5.3.0"
+        vlist.append("-V " + k + ":" + param)
+
+    outs = []
+    for src in srcs:
+        outs.append(src.name + ".cppo")
 
     native.genrule(
         name    = name,
-        srcs  = [src],
-        outs  = [out],
+        srcs  = srcs,
+        outs  = outs,
         tools = ["@opam.cppo//bin:cppo"],
-        cmd = "\n".join([
-            "$(location @opam.cppo//bin:cppo) {defines} $< > $@".format(
-                defines = defines
-            )
+        cmd = " ".join([
+            "$(location @opam.cppo//bin:cppo)",
+            "{}".format(" ".join(deflist)),
+            "{}".format(" ".join(vlist)),
+            "$< > $@"
         ]),
+        visibility = visibility
+)
+
+######################
+cppo = macro(
+    doc = """
+    """,
+    implementation = _cppo_impl,
+    inherit_attrs = native.genrule,
+    attrs = {
+        "srcs": attr.label_list(
+            doc = "List of files",
+            configurable = False
+        ),
+        # "srcs": None,
+        # "out": attr.label(
+        #     doc = "Label of output file",
+        #     # configurable = False
+        # ),
+        "outs": None,
+
+        "defines": attr.string_list(
+            doc = "List of -D defines",
+            configurable = False
+        ),
+        "vars": attr.string_dict(
+            doc = "test",
+            configurable = False
+        )
+    }
 )
